@@ -1,0 +1,12 @@
+@import "tailwindcss";
+@plugin "flowbite-react/plugin/tailwindcss";
+@source "../.flowbite-react/class-list.json";
+*{
+  font-family: "Noto Serif", serif;
+}
+p{
+  
+  font-family: "Dancing Script", cursive;
+  font-optical-sizing: auto;
+  
+}
