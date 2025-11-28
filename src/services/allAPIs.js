@@ -16,3 +16,13 @@ export const loginUserAPI = async(reqBody)=>{
 export const GoogleloginUserAPI = async(reqBody)=>{
     return await commonAPI('POST',`${serverURL}/api/google-login`,reqBody,{})
 }
+
+//4 Add Book
+export const AddBookAPI = async(reqBody,reqHeader)=>{
+    return await commonAPI('POST',`${serverURL}/api/addBook`,reqBody,reqHeader)
+}
+
+//5 Get Book
+export const GetBookAPI = async(reqBody,reqHeader)=>{
+    return await commonAPI('POST',`${serverURL}/api/getBook`,reqBody,reqHeader)
+}
