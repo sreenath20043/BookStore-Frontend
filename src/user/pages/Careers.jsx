@@ -154,4 +154,4 @@ function Careers() {
   );
 }
 
-export default Careers;
+export default Careers;  //to hold token from the localstorage

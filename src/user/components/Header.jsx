@@ -48,7 +48,7 @@ function Header() {
               <span className="block truncate text-sm font-medium">{userData.email}</span>
             </DropdownHeader>
             <DropdownItem>Dashboard</DropdownItem>
-            
+            <Link to={'/profile'}><DropdownItem>Profile</DropdownItem></Link>
             <DropdownDivider />
             <DropdownItem>Sign out</DropdownItem>
           </Dropdown> :   

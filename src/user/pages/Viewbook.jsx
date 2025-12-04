@@ -5,9 +5,49 @@ import { BsCamera } from "react-icons/bs";
 import {  Modal, ModalBody, ModalFooter, ModalHeader } from "flowbite-react";
 import { useState } from "react";
 import BookStoreFooter from "../../components/BookStoreFooter";
+import { Link, useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { getABookAPI } from "../../services/allAPIs";
 
 
 const BookDetails = () => {
+
+  const [token,setToken]=useState("")
+
+  const [bookdata,setBookData]=useState("")
+
+  // const params = useParams() useParams vachu anu oro particalar book inde details edukune
+  // console.log(params);
+
+  const {id} =useParams()
+  console.log(id);
+  
+
+  // to hold token from the local storage
+  const getABook = async(id)=>{
+    const updatedToken = token.replace(/"/g,"")
+     const reqHeader = {
+      Authorization : `Bearer ${updatedToken}`
+     }
+     console.log(reqHeader);
+     
+     try {
+      const response = await getABookAPI(id,reqHeader)
+      console.log(response);
+     setBookData(response.data)
+      
+     } catch (error) {
+      console.log("Error"+error);
+      
+     }
+  }
+  
+  useEffect(()=>{
+    setToken(sessionStorage.getItem('token'))
+    if(token){
+      getABook(id)
+    }
+  },[token])
 
     const [openModal, setOpenModal] = useState(false);
   return (
@@ -19,7 +59,7 @@ const BookDetails = () => {
           
           <div className="flex justify-center md:w-1/3">
             <img
-              src="https://www.papertrue.com/blog/wp-content/uploads/2023/11/37the-goldfinch.jpg"
+              src={bookdata.imageUrl}
               alt="Becoming Book"
               className="rounded-lg shadow-md w-80 h-auto object-cover"
             />
@@ -48,53 +88,46 @@ const BookDetails = () => {
 
           
             <h2 className="text-3xl font-semibold text-center md:text-left mb-1">
-              Becoming
+              {/* {bookdata.} */}
             </h2>
             <p className="text-blue-600 text-center md:text-left mb-4">
-              - Donna Louise Tartt
+              - {bookdata.author}
             </p>
   
             <div className="text-gray-700 text-sm space-y-1">
               <p>
-                <span className="font-medium">Publisher :</span> Crown (North
-                America), Viking Press (Commonwealth)
+                <span className="font-medium">Publisher :</span>{bookdata.publisher}
               </p>
               <p>
-                <span className="font-medium">Language :</span> English
+                <span className="font-medium">Language :</span> {bookdata.language}
               </p>
               <p>
-                <span className="font-medium">No. of pages :</span> 448
+                <span className="font-medium">No. of pages :</span>{bookdata.noOfPages}
               </p>
               <p>
-                <span className="font-medium">Seller Mail :</span> neel@gmail.com
+                <span className="font-medium">Seller Mail :</span> {bookdata.userMail}
               </p>
               <p>
-                <span className="font-medium">Real Price :</span> $25
+                <span className="font-medium">Real Price :</span> {bookdata.price}
               </p>
               <p>
-                <span className="font-medium">ISBN :</span> 978-1-5247-6313-8 (Hardcover)
+                <span className="font-medium">ISBN :</span> {bookdata.isbn}
               </p>
             </div>
   
             <p className="mt-4 text-gray-700 leading-relaxed text-justify">
-             Tartt grew up in the small town of Grenada, Mississippi. She was a bookish child. When
-she was only 5 years old, she wrote her first poem, and at 13 years of age, she had
-a sonnet published. From 1981 to 1982 Tartt attended the University of Mississippi.
-Her writing quickly impressed Mississippi writer Willie Morris, who recommended her
-work to Barry Hannah, then writer in residence at the university. Both men encouraged
-her to gain wider experience, and in 1982 she transferred to Bennington (Vermont)
-College (B.A., 1986), where she befriended other budding writers, including Bret Easton
-Ellis, Jonathan Lethem, and Jill Eisenstadt. It was there that Tartt began work on her first
-novel, The Secret History.
+            {bookdata.abstract}
 
             </p>
   
             <div className="mt-6 flex justify-center md:justify-start gap-3">
-              <button className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition">
-                Back
-              </button>
+             <Link to={'/allBooks'}>
+                <button className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition">
+                  Back
+                </button>
+             </Link>
               <button className="bg-green-600 text-white px-5 py-2 rounded-md hover:bg-green-700 transition">
-                Buy $23
+                Buy ${bookdata.discountPrice}
               </button>
             </div>
           </div>

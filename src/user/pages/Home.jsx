@@ -1,11 +1,64 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import Header from '../components/Header'
 import { Card } from "flowbite-react";
 import { IoIosSearch } from "react-icons/io";
 import BookStoreFooter from '../../components/BookStoreFooter';
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { HomeBookAPI } from '../../services/allAPIs';
+import { useEffect } from 'react';
+import { useState } from 'react';
+import  { searchContext } from '../../contextShareAPI/ContextShare'
 
 function Home() {
+
+
+    // serach bar
+    const {searchKey,setSearchKey}=useContext(searchContext)
+    console.log(searchKey);
+
+    const navigate = useNavigate()
+
+     //to hold token from the localstorage
+      const [token, setToken] = useState('')
+
+  // 4 book frntil add cheyan
+
+    const [homeBook,setHomeBook]=useState([])
+
+  const getHomeBooks= async()=>{
+    try {
+      const response = await HomeBookAPI()
+      console.log(response);
+      setHomeBook(response.data)
+      
+    } catch (error) {
+      console.log("Error"+error);
+      
+    }
+  }
+  console.log(homeBook);
+
+  const handleSeacrh=()=>{
+    if(searchKey==""){
+      alert("Search Book...")
+    }
+    else if(!token){
+      alert("Pleace Login")
+      navigate("/login")
+    }
+    else if(token && searchKey){
+      navigate("/allbooks")
+    }
+    else{
+      alert("Invalid")
+    }
+  }
+  
+  useEffect(()=>{  // button ilatha caseil call cheyan use cheyum useEffect
+   setToken(sessionStorage.getItem('token'))
+    getHomeBooks()
+  },[])
+
   return (
     <>
       <Header/>
@@ -23,10 +76,13 @@ function Home() {
           <div className="relative">
             <input
               type="text"
+              value={searchKey}
+              onChange={(e)=>setSearchKey(e.target.value)}
+              
               placeholder="Search Books"
               className="bg-white w-full px-6 py-4 rounded-l-3xl rounded-r-3xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <button className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+            <button onClick={handleSeacrh} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
              <IoIosSearch />
             </button>
           </div>
@@ -46,57 +102,22 @@ function Home() {
         </div>
 
         <div className="grid  sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-         <Card
-      className="max-w-sm !bg-amber-700"
-      imgAlt="Meaningful alt text for an image that is not purely decorative"
-      imgSrc="https://m.media-amazon.com/images/I/A1Wad8LO08L._AC_UF1000,1000_QL80_.jpg"
-    >
+         {
+          homeBook.length>0?
+          homeBook.map(item=>(
+            <Card
+      className="max-w-sm !bg-amber-700">
+        <img src={item.imageUrl} alt="" />
       <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-        Noteworthy technology 
+        {item.title} 
       </h5>
       <p className="font-normal text-gray-700 dark:text-gray-400">
-        Here are the biggest enterprise technology
+        {item.price}
       </p>
     </Card>
-
-     <Card
-      className=" !bg-amber-700 max-w-sm"
-      imgAlt="Meaningful alt text for an image that is not purely decorative"
-      imgSrc="https://m.media-amazon.com/images/I/A1Wad8LO08L._AC_UF1000,1000_QL80_.jpg"
-    >
-      <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-        Noteworthy technology acquisitions 2021
-      </h5>
-      <p className="font-normal text-gray-700 dark:text-gray-400">
-        Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.
-      </p>
-    </Card>
-
-     <Card
-      className=" !bg-amber-700 max-w-sm"
-      imgAlt="Meaningful alt text for an image that is not purely decorative"
-      imgSrc="https://m.media-amazon.com/images/I/A1Wad8LO08L._AC_UF1000,1000_QL80_.jpg"
-    >
-      <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-        Noteworthy technology acquisitions 2021
-      </h5>
-      <p className="font-normal text-gray-700 dark:text-gray-400">
-        Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.
-      </p>
-    </Card>
-
-     <Card
-      className=" !bg-amber-700 max-w-sm"
-      imgAlt="Meaningful alt text for an image that is not purely decorative"
-      imgSrc="https://m.media-amazon.com/images/I/A1Wad8LO08L._AC_UF1000,1000_QL80_.jpg"
-    >
-      <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-        Noteworthy technology acquisitions 2021
-      </h5>
-      <p className="font-normal text-gray-700 dark:text-gray-400">
-        Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.
-      </p>
-    </Card>
+          ))
+          :"No books found..."
+         }
         </div>
 
         <div className="text-center">
