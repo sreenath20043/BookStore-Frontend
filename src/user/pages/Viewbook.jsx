@@ -7,7 +7,8 @@ import { useState } from "react";
 import BookStoreFooter from "../../components/BookStoreFooter";
 import { Link, useParams } from "react-router-dom";
 import { useEffect } from "react";
-import { getABookAPI } from "../../services/allAPIs";
+import { getABookAPI, makePaymentAPI } from "../../services/allAPIs";
+import {loadStripe} from '@stripe/stripe-js';
 
 
 const BookDetails = () => {
@@ -35,13 +36,47 @@ const BookDetails = () => {
       const response = await getABookAPI(id,reqHeader)
       console.log(response);
      setBookData(response.data)
-      
+     
      } catch (error) {
       console.log("Error"+error);
       
      }
   }
   
+  //function for make payment
+  const makepayment = async()=>{
+    console.log(bookdata);
+    const stripe = await loadStripe('pk_test_51Scf5CRVmW3XWyUZbHdGQDUFysWplBrCm85iXDEqInjIxltGbUeAVay2YCzLnX4Vkki7QIrpCCTFRzhhyanMvb9b00aLLJnv4Y');
+    console.log(stripe);
+    
+    const updatedToken = token.replace(/"/g,"")
+
+    const reqHeader ={
+      Authorization :`Bearer ${updatedToken}`
+    }
+    const reqBody={
+      BookDetails:bookdata
+    }
+
+    const response = await makePaymentAPI(reqBody,reqHeader)
+    console.log(response); 
+
+      const checkoutUrl = response.data.url
+      window.location.href=checkoutUrl
+      const sessionId =response.data.sessionID
+      stripe.initCheckout({sessionId:sessionId})
+    // const sessionID = response.data.sessionID
+    //  const res = stripe.redireactToCheckout({
+    //   sessionID
+    //  })
+    //  console.log(res);
+     
+    //   if (res.error) {
+    //   console.log("Error in payment");     
+    //  }  
+  }
+
+
   useEffect(()=>{
     setToken(sessionStorage.getItem('token'))
     if(token){
@@ -126,7 +161,7 @@ const BookDetails = () => {
                   Back
                 </button>
              </Link>
-              <button className="bg-green-600 text-white px-5 py-2 rounded-md hover:bg-green-700 transition">
+              <button onClick={makepayment} className="bg-green-600 text-white px-5 py-2 rounded-md hover:bg-green-700 transition">
                 Buy ${bookdata.discountPrice}
               </button>
             </div>

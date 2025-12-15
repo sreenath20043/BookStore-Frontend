@@ -46,3 +46,29 @@ export const GetBookAdminAPI = async(reqHeader)=>{
 export const GetUserAPI = async(reqHeader)=>{
     return await commonAPI('GET',`${serverURL}/api/getUser`,{},reqHeader)
 }
+
+
+
+// 10 add job-admine side
+export const AddJobAdminAPI = async (reqBody, reqHeader) => {
+  return await commonAPI('POST', `${serverURL}/api/admin/addJob`,reqBody,reqHeader );
+};
+
+// 11 get job side
+export const getAdminAllJobsAPI = async(reqHeader)=>{
+    return await commonAPI('GET',`${serverURL}/api/admin/allJobs`,{},reqHeader)
+}
+// delete all jobs
+export const DeleteJobsAdminAPI = async(id,reqHeader)=>{
+    return await commonAPI('DELETE',`${serverURL}/api/deletejob/${id}`,{},reqHeader)
+}
+
+// update admin
+export const UpdateAdminAPI = async(reqBody,reqHeader)=>{
+    return await commonAPI('PUT',`${serverURL}/api/updateAdmin`,reqBody,reqHeader)
+}
+
+// 14 make payment - userside
+export const makePaymentAPI = async(reqBody,reqHeader)=>{
+    return await commonAPI('PUT',`${serverURL}/api/makepayment`,reqBody,reqHeader)
+}

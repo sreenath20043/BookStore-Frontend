@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { FileInput, Modal, ModalBody, ModalHeader, TabItem, Tabs, Textarea } from "flowbite-react";
+import React, { useEffect, useRef, useState } from 'react';
+import { FileInput, Modal, ModalBody, ModalFooter, ModalHeader, TabItem, Tabs, Textarea } from "flowbite-react";
 import {
   Button,
   Label,
@@ -9,12 +9,122 @@ import AdminHeader from '../components/AdminHeader';
 import AdminSidebar from '../components/AdminSidebar';
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from "flowbite-react";
 import BookStoreFooter from '../../components/BookStoreFooter';
+import { AddJobAdminAPI, DeleteJobsAdminAPI, getAdminAllJobsAPI } from '../../services/allAPIs';
+import { HiOutlineLocationMarker, HiOutlineTrash } from "react-icons/hi";
+
+
 
 function AdminCareers() {
   const [openModal, setOpenModal] = useState(false);
-  const emailInputRef = useRef(null);
+const [viewJob, setViewJob] = useState([]);
+  const [jobDetails, setJobDetails] = useState({
+    jobTitle: "",
+    location: "",
+    jobType: "",
+    salary: "",
+    qualification: "",
+    experience: "",
+    description: ""
+  })
 
+  const [token, setToken] = useState("");
+
+  const addJob = async () => {
+    console.log(jobDetails);
+    if (jobDetails.jobTitle == "" ||
+      jobDetails.location == "" ||
+      jobDetails.jobType == "" ||
+      jobDetails.salary == "" ||
+      jobDetails.qualification == "" ||
+      jobDetails.experience == "" ||
+      jobDetails.description == "") {
+      alert("Please Fill The Fields");
+    }
+    else {
+      const updatedToken = token?.replace(/"/g, "")
+
+      const reqHeader = {
+        Authorization:` Bearer ${updatedToken}`
+      }
+      try {
+        const response = await AddJobAdminAPI(jobDetails, reqHeader)
+        console.log(response);
+
+        if (response.status == 200) {
+          alert(response.data.messge) //data.messge
+        }
+        else {
+          alert(response.response.data)
+        }
+      }
+
+      catch (error) {
+        console.log(error);
+      }
+    }
+
+  }
+
+  const getAlljobs = async (token) => {
+    const updatedToken = token?.replace(/"/g, "")
+
+    const reqHeader = {
+      Authorization: `Bearer ${updatedToken}`
+    }
+    try {
+      const response = await getAdminAllJobsAPI(reqHeader)
+      console.log(response);
+
+      if (response.status == 200) {
+        // alert(response.data.messge) //data.messge
+        setViewJob(response.data)
+      }
+      else {
+        alert(response.response.data)
+      }
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+  console.log(viewJob);
+
+
+// delete jobs
+   const HandleDelete = async(id)=>{
+    console.log("deleted"+id);
+
+    try {
+      const updatedToken = token?.replace(/"/g, "")
+
+      const reqHeader = {
+        Authorization:`Bearer ${updatedToken}`
+      }
+
+       const response = await DeleteJobsAdminAPI(id,reqHeader)
+        console.log(response);
+        if(response.status==200){
+        alert(response.data.message)
+        getAlljobs()
+        }
+        
+
+    } catch (error) {
+      console.log(error);
+      
+    }
+    
+   }
+
+
+useEffect(() => {
+    setToken(sessionStorage.getItem("token"))
+    getAlljobs(token)
+  }, [token])
+
+  
   return (
+ 
     <>
       <AdminHeader />
 
@@ -34,69 +144,94 @@ function AdminCareers() {
               size="md"
               popup
               onClose={() => setOpenModal(false)}
-              initialFocus={emailInputRef}
+              // initialFocus={emailInputRef}
             >
               <ModalHeader />
-              <ModalBody>
-                <div className="space-y-6">
-                  <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-                    Application form
-                  </h3>
-                  <hr />
+             <ModalBody>
+                      <div className="space-y-6">
+                        <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+                          Application Form
+                        </h3>
+                        <div className=" gap-3 items-center justify-between text-center">
+                          {/* Full Name Input */}
+                          <div>
+                            <div className="mb-2 block"></div>
+                            <TextInput onChange={e => setJobDetails({ ...jobDetails, jobTitle: e.target.value })} value={jobDetails.jobTitle}
+                              id=""
+                              type="text"
+                              placeholder="Job Title"
+                            />
+                          </div>
 
-                  <div className="">
-                    <TextInput
-                      id=""
-                      placeholder="Job Title"
-                      required
-                      className='mb-2'
-                    />
-                    <TextInput
-                      id=""
-                      placeholder="Location"
-                      required
-                      className='mb-2'
-                    />
-                    <TextInput
-                      id=""
-                      placeholder="Job Type"
-                      required
-                      className='mb-2'
-                    />
+                          {/* Qualification Input */}
+                          <div>
+                            <div className="mb-2 block"></div>
+                            <TextInput
+                              onChange={e => setJobDetails({ ...jobDetails, qualification: e.target.value })} value={jobDetails.qualification}
+                              id=""
+                              type="text"
+                              placeholder="Qualification"
+                            />
+                          </div>
+                        </div>
 
-                    <TextInput
-                      id=""
-                      placeholder="Salary"
-                      required
-                      className='mb-2'
-                    />
-                    <TextInput
-                      id=""
-                      placeholder="Qualification"
-                      required
-                      className='mb-2'
-                    />
-                    <TextInput
-                      id=""
-                      placeholder="Experience"
-                      required
-                      className='mb-2'
-                    />
-                  </div>
+                      </div>
+                      <div>
+                        {/* Email Input */}
+                        <div>
+                          <div className="mb-2 block"></div>
+                          <TextInput onChange={e => setJobDetails({ ...jobDetails, location: e.target.value })} value={jobDetails.location}
+                            id=""
+                            type="text"
+                            placeholder="Location"
+                          />
+                        </div>
 
+                        {/* Phone Input */}
+                        <div>
+                          <div className="mb-2 block"></div>
+                          <TextInput onChange={e => setJobDetails({ ...jobDetails, jobType: e.target.value })} value={jobDetails.jobType}
+                            id=""
+                            type="text"
+                            placeholder="Job Type "
+                          />
+                        </div>
 
-                  <div className="max-w-md">
-                    <Textarea id="" placeholder="Description" required rows={4} />
-                  </div>
+                        <div>
+                          <div className="mb-2 block"></div>
+                          <TextInput onChange={e => setJobDetails({ ...jobDetails, experience: e.target.value })} value={jobDetails.experience}
+                            id=""
+                            type="text"
+                            placeholder="Experience "
+                          />
+                        </div>
 
+                        <div>
+                          <div className="mb-2 block"></div>
+                          <TextInput onChange={e => setJobDetails({ ...jobDetails, salary: e.target.value })} value={jobDetails.salary}
+                            id=""
+                            type="text"
+                            placeholder="Salary"
+                          />
+                        </div>
+                        <div>
+                          <div className="mb-2 block"></div>
+                          <TextInput onChange={e => setJobDetails({ ...jobDetails, description: e.target.value })} value={jobDetails.description}
+                            id=""
+                            type="text"
+                            placeholder="Description"
+                          />
+                        </div>
 
-                  <div className="flex justify-end-safe">
-                    <button type="button" className="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-0 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Reset</button>
+                      </div>
 
-                    <button type="button" className="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-0 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Add</button>
-                  </div>
-                </div>
-              </ModalBody>
+                    </ModalBody>
+                    <ModalFooter className='ml-auto'>
+                      <Button color="green" onClick={addJob}>Add</Button>
+                      <Button color="red" onClick={() => setOpenModal(false)}>
+                        Cancel
+                      </Button>
+                    </ModalFooter>
             </Modal>
           </div>
 
@@ -142,37 +277,48 @@ function AdminCareers() {
                 </form>
               </div>
 
-              <div className="max-w-5xl mx-auto bg-white border shadow p-6 rounded-lg mb-10">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-lg font-semibold">HR Assistant</h3>
-                    <hr className="my-2" />
-                    <p>Kochi</p>
-                    <p>Job Type: Full-time</p>
-                    <p>Salary: 20000 - 30000 / month</p>
-                    <p>Qualification:</p>
-                    <p>Experience: 1-2 yr</p>
-                    <p>Description:</p>
-                  </div>
-                  <Button color="red">Delete</Button>
-                </div>
-              </div>
+              {/* Job Card */}
+                {
+                  viewJob.length > 0 ?
+                    viewJob.map((item) => (
+                      
+                        <div className="bg-white border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 mb-6 relative">
+                          {/* Delete Button */}
+                          <button onClick={()=>HandleDelete(item._id)} className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm flex items-center gap-1">
+                            <HiOutlineTrash className="text-white" /> Delete
+                          </button>
+  
+                          {/* Job Info */}
+                          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                            {item.jobTitle}
+                          </h2>
+                          <p className="flex items-center gap-1 text-blue-600 text-sm mb-2">
+                            <HiOutlineLocationMarker /> {item.location}
+                          </p>
+                          <p className="text-sm text-gray-700 mb-1">
+                            <span className="font-semibold">Job Type:</span> {item.jobType}
+                          </p>
+                          <p className="text-sm text-gray-700 mb-1">
+                            <span className="font-semibold">Salary:</span> {item.salary}
+                          </p>
+                          <p className="text-sm text-gray-700 mb-1">
+                            <span className="font-semibold">Qualification:</span> {item.qualification}
+                          </p>
+                          <p className="text-sm text-gray-700 mb-2">
+                            <span className="font-semibold">Experience:</span> {item.experience}
+                          </p>
+                          <p className="text-sm text-gray-600 leading-relaxed text-justify">
+                            Description: {item.description}
+                          </p>
+                        </div>
+                      
+                    ))
+                    :
+                    "No Jobs Found"
 
-              <div className="max-w-5xl mx-auto bg-white border shadow p-6 rounded-lg mb-10">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-lg font-semibold">HR Assistant</h3>
-                    <hr className="my-2" />
-                    <p>Kochi</p>
-                    <p>Job Type: Full-time</p>
-                    <p>Salary: 20000 - 30000 / month</p>
-                    <p>Qualification:</p>
-                    <p>Experience: 1-2 yr</p>
-                    <p>Description:</p>
-                  </div>
-                  <Button color="red">Delete</Button>
-                </div>
-              </div>
+                }
+
+             
 
             </TabItem>
 
