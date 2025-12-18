@@ -28,10 +28,13 @@ export const HomeBookAPI = async()=>{
 }
 
 //6 Get Book
-export const AllBookAPI = async(reqHeader)=>{
-    return await commonAPI('GET',`${serverURL}/api/getBook?search=${searchKey}`,{},reqHeader)
-}
+// export const AllBookAPI = async(reqHeader)=>{
+//     return await commonAPI('GET',`${serverURL}/api/getBook?search=${searchKey}`,{},reqHeader)
+// }
 
+export const AllBookAPI = async (searchKey = '', reqHeader) => {
+  return await commonAPI('GET', `${serverURL}/api/getBook?search=${searchKey}`, {}, reqHeader);
+};
 //7 view a particular book details
 export const getABookAPI = async(id,reqHeader)=>{
     return await commonAPI('GET',`${serverURL}/api/viewBooks/${id}`,{},reqHeader)

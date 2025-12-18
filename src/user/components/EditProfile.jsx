@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Drawer, DrawerHeader, DrawerItems, Label, Textarea, TextInput } from "flowbite-react";
+import { Button, Drawer,  DrawerItems, Label, Textarea, TextInput } from "flowbite-react";
 import { useState } from "react";
 
 function EditProfile() {
